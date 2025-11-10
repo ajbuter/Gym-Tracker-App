@@ -1,5 +1,5 @@
 //
-//  Lift_AppApp.swift
+//  GymTrackerApp.swift
 //  Lift App
 //
 //  Created by Aiden Buter on 11/6/25.
@@ -8,10 +8,11 @@
 import SwiftUI
 
 @main
-struct Lift_AppApp: App {
+struct GymTrackerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(AppState()) // inject your app state
         }
     }
 }
