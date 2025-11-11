@@ -83,6 +83,16 @@ struct WorkoutsListView: View {
                     }
                 }
                 .padding()
+                // Dropdown for template
+                VStack(spacing: 6) {
+                    Picker("Template", selection: $selectedTemplate) {
+                        text("None").tag("None")
+                        ForEach(Array(templates.key), id \.self) {
+                            name in Text(name).tag(name)
+                        }
+                        
+                    }
+                }
 
                 List {
                     ForEach(appState.workouts) { workout in
