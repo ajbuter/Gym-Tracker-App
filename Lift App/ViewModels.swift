@@ -18,6 +18,7 @@ final class AppState: ObservableObject {
 
     init() {
         loadAll()
+        initBackgroundSave()
 
         // Whenever these arrays change, we auto-save to disk
         $workouts
@@ -74,6 +75,7 @@ final class AppState: ObservableObject {
                 break
             }
         }
+        try? saveWorkouts()
     }
 
     func updatePRIfNeeded(exerciseName: String, candidateLbs: Double, date: Date) {
@@ -86,11 +88,13 @@ final class AppState: ObservableObject {
             let rec = PRRecord(exerciseName: exerciseName, bestweight: candidateLbs, date: date)
             prs.append(rec)
         }
+        try? savePRs()
     }
 
     // Add a new workout (empty)
     func createWorkout(name: String = "Workout") {
         workouts.insert(Workout(name: name), at: 0)
+        try? saveWorkouts()
     }
 
     // Log a body metric
@@ -98,6 +102,7 @@ final class AppState: ObservableObject {
         var entry = BodyMetric(weightlbs: weightlbs)
         entry.heightCm = heightCm
         metrics.append(entry)
+        try? saveMetrics()
     }
 
     // Compute weekly change (lbs) between latest and 7 days ago average
@@ -130,4 +135,13 @@ final class AppState: ObservableObject {
         let avgOlder = older.map { $0.weightlbs }.reduce(0,+) / Double(older.count)
         return avgRecent - avgOlder
     }
+    func initBackgroundSave() {
+        NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
+            .sink { [weak self] _ in
+                try? self?.saveWorkouts()
+                try? self?.saveMetrics()
+                try? self?.savePRs()
+            }
+            .store(in: &cancellables)
+        }
 }
